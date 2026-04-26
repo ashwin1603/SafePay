@@ -1,6 +1,6 @@
 <div align="center">
-**🔐 SafePay
-A Secure Financial Gateway**
+🔐 SafePay
+A Secure Financial Gateway
 
 SafePay is a modern, secure financial gateway application built with a React + Vite frontend and a Python-powered backend — designed to make payments safe, fast, and reliable.
 </div>
