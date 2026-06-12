@@ -1,67 +1,75 @@
-# SafePay — Secure Payment Gateway
+# Security Overview
 
-SafePay is a full-stack payment gateway built for security first: JWT auth with
-refresh tokens, role-based access control, AI-based fraud detection, tokenized
-payments (card data never touches the server), an append-only audit log, and an
-offline assistant chatbot.
+SafePay is built defense-in-depth. This document describes the controls in place,
+how to report a vulnerability, and the deliberate design decision **not** to ship
+a hidden backdoor.
 
-- **Backend:** FastAPI · SQLAlchemy · Alembic · scikit-learn (IsolationForest)
-- **Frontend:** React 19 · Vite · Tailwind · Recharts
-- **Payments:** simulated processor by default; Stripe PaymentIntents (test mode) optional
+## Reporting a vulnerability
+Email security@safepay.local (replace with your real contact) with steps to
+reproduce. Please do not open public issues for security bugs. We aim to
+acknowledge within 48 hours.
 
-> ⚠️ **Payments are in `simulated` mode by default — no real money moves.**
-> Moving real money requires completing [`docs/GO_LIVE_CHECKLIST.md`](docs/GO_LIVE_CHECKLIST.md)
-> (PCI SAQ-A, HTTPS/HSTS, secret rotation, pen test). See [SECURITY.md](SECURITY.md).
+## Controls implemented
 
-## Quick start
+### Authentication & sessions
+- Passwords hashed with **bcrypt** (cost 12), constant-time verification.
+- Password policy: ≥10 chars, 3 of 4 character classes, common-password blocklist.
+- **JWT** access tokens are short-lived (15 min) and typed; separate refresh
+  tokens (7 days). Tokens carry issuer + audience claims and a unique `jti`;
+  the wrong token type is rejected.
+- **Account lockout**: 5 failed logins → 15-minute lock. Generic error messages
+  prevent username enumeration.
 
-### Backend
-```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements-dev.txt
-cp .env.example .env
-python -c "import secrets; print('JWT_SECRET_KEY=' + secrets.token_urlsafe(48))" >> .env
-python seed.py            # demo users + sample transactions
-uvicorn main:app --reload # http://localhost:8000/docs
-```
+### Authorization (RBAC)
+- Roles: `user` < `operator` < `admin`, enforced by a single `require_role`
+  dependency.
+- **Self-registration can never create privileged accounts** — the `role` field
+  is ignored on `/auth/register`. Elevation is an audited admin-only action.
+- Payments are **bound to the authenticated user** (no `user_id` in the request
+  body), closing the IDOR where a caller could pay/act as someone else.
+- Object-level checks on transaction reads (users see only their own).
 
-### Frontend
-```bash
-npm install
-npm run dev               # http://localhost:5173
-```
+### Network & transport
+- `TrustedHostMiddleware` (Host-header / DNS-rebinding protection).
+- Explicit CORS allow-list (no wildcard with credentials).
+- Security headers on every response: `Content-Security-Policy`,
+  `Strict-Transport-Security` (prod), `X-Frame-Options: DENY`,
+  `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`,
+  `Cross-Origin-Opener/Resource-Policy`, `Cache-Control: no-store`.
+- Request body size cap (1 MB) and per-client sliding-window rate limiting.
 
-### Demo logins (development only)
-| Role     | Email                | Password          |
-|----------|----------------------|-------------------|
-| admin    | admin@safepay.io     | `Admin#Pass2026`  |
-| operator | operator@safepay.io  | `Operator#Pass26` |
-| user     | alice@corp.io        | `Alice#Pass2026`  |
+### Payments
+- **Tokenization**: raw card numbers never reach SafePay (PCI SAQ-A model).
+- Fraud scoring runs **before** any charge; `BLOCKED` never reaches the processor.
+- **Idempotency keys** guarantee exactly-once processing; keys are not reusable
+  across users.
+- Live Stripe keys are refused unless `ENVIRONMENT=production` **and**
+  `ALLOW_LIVE_PAYMENTS=true` — a deliberate guard rail against accidental real
+  charges.
 
-## Tests
-```bash
-cd backend && pytest -q
-```
+### Data & secrets
+- No secrets in the repo. `.env` and `*.db` are git-ignored; `.env.example`
+  documents required variables.
+- `JWT_SECRET_KEY` must be ≥32 chars; the app **refuses to start in production**
+  without one. (The previously committed secret has been removed — rotate it.)
+- ORM (SQLAlchemy) parameterizes all queries → no SQL injection.
+- Append-only **audit log** records logins, lockouts, role changes, deletions,
+  payments, and break-glass use.
 
-## Architecture
+### Supply chain / CI
+- GitHub Actions runs pytest, **Bandit** (SAST), **pip-audit** & `npm audit`
+  (dependency CVEs), **gitleaks** (secret scanning) and **CodeQL** on every PR.
 
-```
-React SPA ──HTTPS──> FastAPI
-                       ├─ middleware: TrustedHost · SecurityHeaders · RateLimit · CORS
-                       ├─ /auth        register / login (lockout) / refresh / me
-                       ├─ /process-payment   fraud scoring → tokenized charge
-                       ├─ /transactions      own rows (admins: all)
-                       ├─ /admin             users / stats / audit / retrain / role
-                       └─ /chat              offline rule-based assistant
-                       ▼
-              SQLite (dev) / PostgreSQL (prod)
-              users · transactions · fraud_logs · audit_logs
-```
+## Why there is no hidden backdoor — and what we do instead
+A covert "hidden access" path is itself the worst vulnerability a payment system
+can have: it cannot be reasoned about, it bypasses every other control, and when
+discovered it becomes the breach. SafePay therefore provides a **break-glass**
+mechanism instead — legitimate emergency access that is:
 
-Card data flow (PCI SAQ-A): the browser tokenizes the card directly with the
-processor; SafePay only ever receives an opaque token. No PAN/CVV is logged or
-stored.
+- **disabled by default** (off unless an operator sets a strong token),
+- **strongly authenticated** (≥32-char token, constant-time comparison),
+- **fully audited** (every attempt and use is written to the audit log),
+- **documented and revocable** (see `docs/BREAK_GLASS.md`).
 
-See [SECURITY.md](SECURITY.md), [THREAT_MODEL.md](THREAT_MODEL.md), and
-[docs/BREAK_GLASS.md](docs/BREAK_GLASS.md).
+This gives the same operational outcome — getting in to patch urgently — without
+the catastrophic risk of an undocumented bypass.
