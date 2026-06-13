@@ -90,6 +90,7 @@ export const healthApi = { check: () => request("/health", {}, { auth: false }) 
 export const appealApi = {
   submit: (txnId, reason) => request(`/appeals/transactions/${txnId}`, { method: "POST", body: JSON.stringify({ reason }) }),
   list: () => request("/appeals"),
+  listMine: () => request("/appeals/mine"),
   listPending: () => request("/appeals/pending"),
   review: (txnId, decision) => request(`/appeals/${txnId}/review`, { method: "PUT", body: JSON.stringify({ decision }) }),
 };

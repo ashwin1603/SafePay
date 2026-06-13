@@ -22,6 +22,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger("safepay")
 
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("SafePay starting in %s mode…", settings.ENVIRONMENT)
+    create_tables()
+    from app.services.fraud_service import _get_model
+    _get_model()
+    logger.info("Fraud model ready ✓  Payment provider: %s", settings.PAYMENT_PROVIDER)
+    yield
+
 # In production, never expose interactive docs publicly.
 _docs = None if settings.is_production else "/docs"
 _redoc = None if settings.is_production else "/redoc"
@@ -33,6 +44,7 @@ app = FastAPI(
     version="2.0.0",
     docs_url=_docs,
     redoc_url=_redoc,
+    lifespan=lifespan,
 )
 
 # ── Middleware (order matters: last added runs first) ─────────────────────────
@@ -46,15 +58,6 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Break-Glass-Token"],
 )
-
-
-@app.on_event("startup")
-def on_startup() -> None:
-    logger.info("SafePay starting in %s mode…", settings.ENVIRONMENT)
-    create_tables()
-    from app.services.fraud_service import _get_model
-    _get_model()
-    logger.info("Fraud model ready ✓  Payment provider: %s", settings.PAYMENT_PROVIDER)
 
 
 app.include_router(auth.router)

@@ -70,6 +70,23 @@ def submit_appeal(
 # List
 # ------------------------------------------------------------------
 
+@router.get("/mine", response_model=List[AppealResponse])
+def list_my_appeals(
+    db: Session = Depends(get_db),
+    principal=Depends(require_permission(APPEAL_SUBMIT)),
+):
+    """Return all transactions belonging to the current user that have an appeal."""
+    txns = (
+        db.query(Transaction)
+        .filter(Transaction.user_id == principal.id)
+        .filter(Transaction.appeal_status.isnot(None))
+        .order_by(Transaction.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    return [_to_response(t) for t in txns]
+
+
 @router.get("", response_model=List[AppealResponse])
 def list_appeals(
     db: Session = Depends(get_db),

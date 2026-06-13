@@ -19,9 +19,7 @@ export default function Appeals() {
   const fetchAppeals = async () => {
     try {
       setLoading(true);
-      // If operator, fetch all appeals. If user, they check transactions table, but we can also display a status center.
-      // Let's fetch all appeals since they have appeal status.
-      const data = isOperator ? await appealApi.list() : await appealApi.list();
+      const data = isOperator ? await appealApi.list() : await appealApi.listMine();
       setAppeals(data);
     } catch (err) {
       setError(err.message || 'Failed to fetch appeals queue');

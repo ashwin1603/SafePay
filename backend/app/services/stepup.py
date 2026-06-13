@@ -49,11 +49,13 @@ def create_challenge(user_id: int, txn_context: dict) -> Challenge:
     )
     _challenges[challenge_id] = challenge
     _cleanup_expired()
-    logger.info(
-        "Step-up challenge created for user %d (dev code: %s)",
-        user_id,
-        code,
-    )
+    from app.core.config import settings
+    if settings.ENVIRONMENT != "production":
+        logger.debug(
+            "Step-up challenge created for user %d (dev code: %s)",
+            user_id,
+            code,
+        )
     return challenge
 
 
