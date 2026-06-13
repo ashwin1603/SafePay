@@ -38,14 +38,13 @@ acknowledge within 48 hours.
   `Cross-Origin-Opener/Resource-Policy`, `Cache-Control: no-store`.
 - Request body size cap (1 MB) and per-client sliding-window rate limiting.
 
-### Payments
+### Payments & Fraud Controls
 - **Tokenization**: raw card numbers never reach SafePay (PCI SAQ-A model).
-- Fraud scoring runs **before** any charge; `BLOCKED` never reaches the processor.
-- **Idempotency keys** guarantee exactly-once processing; keys are not reusable
-  across users.
-- Live Stripe keys are refused unless `ENVIRONMENT=production` **and**
-  `ALLOW_LIVE_PAYMENTS=true` — a deliberate guard rail against accidental real
-  charges.
+- **Fraud scoring**: runs **before** any charge; `BLOCKED` never reaches the processor.
+- **Risk-Adaptive Step-Up 2FA**: suspicious payments trigger a temporary, random SMS code verification challenge.
+- **Privacy-Preserving Consortium**: malicious signal checks run against merged cryptographic Bloom filters; no customer PII is shared.
+- **Idempotency keys** guarantee exactly-once processing; keys are not reusable across users.
+- **Live Stripe keys** are refused unless `ENVIRONMENT=production` **and** `ALLOW_LIVE_PAYMENTS=true` — a deliberate guard rail against accidental real charges.
 
 ### Data & secrets
 - No secrets in the repo. `.env` and `*.db` are git-ignored; `.env.example`

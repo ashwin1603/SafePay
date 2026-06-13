@@ -23,6 +23,14 @@ off the exact permission list the server returns from `GET /auth/me`.
 | `transaction:read:all` |  | ✓ | ✓ |
 | `transaction:review` |  | ✓ | ✓ |
 | `transaction:refund` |  | ✓ | ✓ |
+| `appeal:submit` | ✓ | ✓ | ✓ |
+| `appeal:review` |  | ✓ | ✓ |
+| `fraud_rules:manage` |  | ✓ | ✓ |
+| `fraud_rules:test` |  | ✓ | ✓ |
+| `analytics:view` |  | ✓ | ✓ |
+| `simulation:run` |  | ✓ | ✓ |
+| `consortium:manage` |  |  | ✓ |
+| `chargeback:view` |  | ✓ | ✓ |
 | `stats:read` |  | ✓ | ✓ |
 | `model:retrain` |  | ✓ | ✓ |
 | `audit:read` |  |  | ✓ |
