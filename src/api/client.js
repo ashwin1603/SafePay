@@ -86,3 +86,44 @@ export const chatApi = {
 };
 
 export const healthApi = { check: () => request("/health", {}, { auth: false }) };
+
+export const appealApi = {
+  submit: (txnId, reason) => request(`/appeals/transactions/${txnId}`, { method: "POST", body: JSON.stringify({ reason }) }),
+  list: () => request("/appeals"),
+  listPending: () => request("/appeals/pending"),
+  review: (txnId, decision) => request(`/appeals/${txnId}/review`, { method: "PUT", body: JSON.stringify({ decision }) }),
+};
+
+export const fraudRulesApi = {
+  list: () => request("/fraud-rules"),
+  create: (rule) => request("/fraud-rules", { method: "POST", body: JSON.stringify(rule) }),
+  update: (id, rule) => request(`/fraud-rules/${id}`, { method: "PUT", body: JSON.stringify(rule) }),
+  delete: (id) => request(`/fraud-rules/${id}`, { method: "DELETE" }),
+  toggle: (id) => request(`/fraud-rules/${id}/toggle`, { method: "POST" }),
+  backtest: (id) => request(`/fraud-rules/${id}/backtest`, { method: "POST" }),
+};
+
+export const consortiumApi = {
+  status: () => request("/consortium/status"),
+  bloom: () => request("/consortium/bloom"),
+  sync: (peerId, filterBase64, sizeBits, hashCount) =>
+    request("/consortium/sync", { method: "POST", body: JSON.stringify({ peer_id: peerId, filter_base64: filterBase64, size_bits: sizeBits, hash_count: hashCount }) }),
+  check: (hashedSignals) => request("/consortium/check", { method: "POST", body: JSON.stringify({ hashed_signals: hashedSignals }) }),
+};
+
+export const analyticsApi = {
+  summary: () => request("/analytics/summary"),
+};
+
+export const simulationApi = {
+  scenarios: () => request("/simulation/scenarios"),
+  run: (scenario, count) => request("/simulation/run", { method: "POST", body: JSON.stringify({ scenario, count }) }),
+};
+
+export const chargebackApi = {
+  predictions: () => request("/chargeback/predictions"),
+};
+
+export const paymentStepupApi = {
+  verify: (challengeId, code) => request("/process-payment/step-up-verify", { method: "POST", body: JSON.stringify({ challenge_id: challengeId, code }) }),
+};

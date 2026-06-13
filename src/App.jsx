@@ -13,6 +13,14 @@ import NoAccess from "./pages/NoAccess";
 import LoginPage from "./pages/LoginPage";
 import ChatWidget from "./components/ChatWidget";
 
+// New feature imports
+import Appeals from "./pages/Appeals";
+import FraudRules from "./pages/FraudRules";
+import Analytics from "./pages/Analytics";
+import Simulation from "./pages/Simulation";
+import Consortium from "./pages/Consortium";
+import Chargeback from "./pages/Chargeback";
+
 // Route-level guard: render the element only if the user holds `perm`.
 function Guard({ perm, element }) {
   const { can } = useAuth();
@@ -35,7 +43,17 @@ function ProtectedLayout() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/transactions" element={<Guard perm={P.TXN_READ_OWN} element={<Transactions />} />} />
             <Route path="/process" element={<Guard perm={P.PAYMENT_CREATE} element={<ProcessPayment />} />} />
+            <Route path="/appeals" element={<Guard perm={P.APPEAL_SUBMIT} element={<Appeals />} />} />
+            
+            {/* Operator and Ops Routes */}
             <Route path="/admin/system" element={<Guard perm={P.STATS_READ} element={<AdminSystem />} />} />
+            <Route path="/admin/analytics" element={<Guard perm={P.ANALYTICS_VIEW} element={<Analytics />} />} />
+            <Route path="/admin/rules" element={<Guard perm={P.FRAUD_RULES_MANAGE} element={<FraudRules />} />} />
+            <Route path="/admin/simulation" element={<Guard perm={P.SIMULATION_RUN} element={<Simulation />} />} />
+            <Route path="/admin/chargebacks" element={<Guard perm={P.CHARGEBACK_VIEW} element={<Chargeback />} />} />
+            
+            {/* Admin Exclusive Routes */}
+            <Route path="/admin/consortium" element={<Guard perm={P.CONSORTIUM_MANAGE} element={<Consortium />} />} />
             <Route path="/admin/users" element={<Guard perm={P.USER_READ} element={<AdminUsers />} />} />
             <Route path="/admin/audit" element={<Guard perm={P.AUDIT_READ} element={<AuditLog />} />} />
             <Route path="*" element={<NoAccess />} />

@@ -11,14 +11,20 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, perm: null },
   { to: '/transactions', label: 'Transactions', icon: ArrowRightLeft, perm: P.TXN_READ_OWN },
   { to: '/process', label: 'Process Payment', icon: CreditCard, perm: P.PAYMENT_CREATE },
+  { to: '/appeals', label: 'Appeals', icon: ShieldCheck, perm: P.APPEAL_SUBMIT },
 ];
 
 const opsItems = [
   { to: '/admin/system', label: 'Operations', icon: Server, perm: P.STATS_READ },
+  { to: '/admin/analytics', label: 'Fraud Analytics', icon: ScrollText, perm: P.ANALYTICS_VIEW },
+  { to: '/admin/rules', label: 'Fraud Rules', icon: ShieldCheck, perm: P.FRAUD_RULES_MANAGE },
+  { to: '/admin/simulation', label: 'Simulation Sandbox', icon: Server, perm: P.SIMULATION_RUN },
+  { to: '/admin/chargebacks', label: 'Chargeback Risk', icon: ScrollText, perm: P.CHARGEBACK_VIEW },
 ];
 
 const adminItems = [
   { to: '/admin/users', label: 'Users & IAM', icon: Users, perm: P.USER_READ },
+  { to: '/admin/consortium', label: 'Consortium Network', icon: ShieldCheck, perm: P.CONSORTIUM_MANAGE },
   { to: '/admin/audit', label: 'Audit Log', icon: ScrollText, perm: P.AUDIT_READ },
 ];
 
