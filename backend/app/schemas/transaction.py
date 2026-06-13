@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, field_validator
 
@@ -54,12 +54,24 @@ class TransactionOut(BaseModel):
     status: str
     risk_score: float
     created_at: datetime
+    fraud_explanation: Optional[Dict[str, Any]] = None
+    appeal_status: Optional[str] = None
+    appeal_reason: Optional[str] = None
+    appeal_reviewed_by: Optional[str] = None
+    appeal_reviewed_at: Optional[datetime] = None
+    chargeback_risk: Optional[float] = None
 
     @classmethod
     def from_orm_obj(cls, t) -> "TransactionOut":
         return cls(id=t.id, txn_id=f"TXN-{t.id:05d}", user_id=t.user_id,
                    amount=t.amount, description=t.description, status=t.status,
-                   risk_score=t.risk_score, created_at=t.created_at)
+                   risk_score=t.risk_score, created_at=t.created_at,
+                   fraud_explanation=t.fraud_explanation,
+                   appeal_status=t.appeal_status,
+                   appeal_reason=t.appeal_reason,
+                   appeal_reviewed_by=t.appeal_reviewed_by,
+                   appeal_reviewed_at=t.appeal_reviewed_at,
+                   chargeback_risk=t.chargeback_risk)
 
 
 class PaymentResponse(BaseModel):
@@ -70,6 +82,15 @@ class PaymentResponse(BaseModel):
     idempotency_key: str
     is_duplicate: bool = False
     provider_ref: Optional[str] = None
+    fraud_explanation: Optional[Dict[str, Any]] = None
+    step_up_required: bool = False
+    challenge_id: Optional[str] = None
+    dev_otp: Optional[str] = None
+
+
+class StepUpVerifyRequest(BaseModel):
+    challenge_id: str
+    code: str
 
 
 class ReviewRequest(BaseModel):

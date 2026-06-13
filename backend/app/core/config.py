@@ -73,6 +73,14 @@ class Settings(BaseSettings):
     BREAK_GLASS_TOKEN: str = ""           # min 32 chars; compared in constant time
     BREAK_GLASS_EMAIL: str = "break-glass@safepay.local"
 
+    # ── Step-up authentication (risk-adaptive 2FA) ────────────────────────────
+    STEPUP_THRESHOLD: float = 0.35        # below FLAG — triggers step-up challenge
+
+    # ── Consortium (privacy-preserving shared fraud signals) ──────────────────
+    CONSORTIUM_ENABLED: bool = False
+    CONSORTIUM_PEERS: List[str] = []
+    CONSORTIUM_SECRET: str = ""
+
     @field_validator("JWT_SECRET_KEY", mode="after")
     @classmethod
     def _validate_secret(cls, v: str, info) -> str:
