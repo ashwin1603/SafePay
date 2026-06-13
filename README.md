@@ -62,14 +62,20 @@ cd backend && pytest -q
 ```
 React SPA ──HTTPS──> FastAPI
                        ├─ middleware: TrustedHost · SecurityHeaders · RateLimit · CORS
-                       ├─ /auth          register / login (lockout) / refresh / me
-                       ├─ /process-payment   fraud scoring → tokenized charge
+                       ├─ /auth              register / login (lockout) / refresh / me
+                       ├─ /process-payment   fraud scoring → tokenized charge & step-up verification
                        ├─ /transactions      own rows (operator/admin: all, review, refund)
+                       ├─ /appeals           submit and review transaction verdicts
+                       ├─ /fraud-rules       manage rules and run backtest simulations
+                       ├─ /consortium        sync bloom filters and inspect signals
+                       ├─ /analytics         KS drift and alert distribution statistics
+                       ├─ /simulation        trigger simulated synthetic attack scenarios
+                       ├─ /chargeback        pre-settlement scanner and predictions
                        ├─ /admin             users / stats / audit / retrain / role
                        └─ /chat              offline rule-based assistant
                        ▼
               SQLite (dev) / PostgreSQL (prod)
-              users · transactions · fraud_logs · audit_logs
+              users · transactions · fraud_logs · fraud_rules · audit_logs
 ```
 
 Authorization is permission-based: each route requires a named permission (e.g. `payment:create`, `transaction:refund`, `user:set_role`), resolved from the principal's role via the policy matrix in `backend/app/core/permissions.py`. The frontend gates navigation, routes, and buttons off the permission list returned by `GET /auth/me`.
