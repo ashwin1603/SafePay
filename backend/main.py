@@ -10,7 +10,10 @@ from app.core.config import settings
 from app.database import create_tables
 from app.middleware.rate_limiter import RateLimitMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
-from app.routers import admin, auth, cashfree, chatbot, payments, transactions
+from app.routers import (
+    admin, auth, cashfree, chatbot, payments, transactions,
+    appeals, fraud_rules, consortium_router, analytics, simulation, chargeback
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -18,6 +21,17 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("safepay")
+
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("SafePay starting in %s mode…", settings.ENVIRONMENT)
+    create_tables()
+    from app.services.fraud_service import _get_model
+    _get_model()
+    logger.info("Fraud model ready ✓  Payment provider: %s", settings.PAYMENT_PROVIDER)
+    yield
 
 # In production, never expose interactive docs publicly.
 _docs = None if settings.is_production else "/docs"
@@ -30,6 +44,7 @@ app = FastAPI(
     version="2.0.0",
     docs_url=_docs,
     redoc_url=_redoc,
+    lifespan=lifespan,
 )
 
 # ── Middleware (order matters: last added runs first) ─────────────────────────
@@ -45,21 +60,18 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-def on_startup() -> None:
-    logger.info("SafePay starting in %s mode…", settings.ENVIRONMENT)
-    create_tables()
-    from app.services.fraud_service import _get_model
-    _get_model()
-    logger.info("Fraud model ready ✓  Payment provider: %s", settings.PAYMENT_PROVIDER)
-
-
 app.include_router(auth.router)
 app.include_router(transactions.router)
 app.include_router(payments.router)
 app.include_router(admin.router)
 app.include_router(chatbot.router)
 app.include_router(cashfree.router)
+app.include_router(appeals.router)
+app.include_router(fraud_rules.router)
+app.include_router(consortium_router.router)
+app.include_router(analytics.router)
+app.include_router(simulation.router)
+app.include_router(chargeback.router)
 
 
 @app.get("/health", tags=["Health"])

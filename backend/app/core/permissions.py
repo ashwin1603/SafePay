@@ -24,9 +24,21 @@ USER_READ            = "user:read"
 USER_SET_ROLE        = "user:set_role"
 USER_DELETE          = "user:delete"
 
+# ── New permissions (7-feature expansion) ─────────────────────────────────────
+APPEAL_SUBMIT        = "appeal:submit"          # users appeal their own blocked/flagged txn
+APPEAL_REVIEW        = "appeal:review"          # operators review appeals
+FRAUD_RULES_MANAGE   = "fraud_rules:manage"     # CRUD fraud rules
+FRAUD_RULES_TEST     = "fraud_rules:test"       # backtest rules
+ANALYTICS_VIEW       = "analytics:view"         # real-time analytics dashboard
+SIMULATION_RUN       = "simulation:run"         # run attack simulations
+CONSORTIUM_MANAGE    = "consortium:manage"       # manage shared fraud signals
+CHARGEBACK_VIEW      = "chargeback:view"        # view chargeback predictions
+
 ALL_PERMISSIONS = {
     PAYMENT_CREATE, TXN_READ_OWN, TXN_READ_ALL, TXN_REVIEW, TXN_REFUND,
     STATS_READ, AUDIT_READ, MODEL_RETRAIN, USER_READ, USER_SET_ROLE, USER_DELETE,
+    APPEAL_SUBMIT, APPEAL_REVIEW, FRAUD_RULES_MANAGE, FRAUD_RULES_TEST,
+    ANALYTICS_VIEW, SIMULATION_RUN, CONSORTIUM_MANAGE, CHARGEBACK_VIEW,
 }
 
 # ── Role -> permission matrix ─────────────────────────────────────────────────
@@ -35,14 +47,16 @@ ALL_PERMISSIONS = {
 #            and stats, retrains the model — but NO identity/IAM powers.
 # admin    : full administrator. Everything the operator can do, plus IAM
 #            (read users, change roles, delete users) and the audit trail.
-_USER_PERMS = {PAYMENT_CREATE, TXN_READ_OWN}
+_USER_PERMS = {PAYMENT_CREATE, TXN_READ_OWN, APPEAL_SUBMIT}
 
 _OPERATOR_PERMS = _USER_PERMS | {
     TXN_READ_ALL, TXN_REVIEW, TXN_REFUND, STATS_READ, MODEL_RETRAIN,
+    APPEAL_REVIEW, FRAUD_RULES_MANAGE, FRAUD_RULES_TEST,
+    ANALYTICS_VIEW, SIMULATION_RUN, CHARGEBACK_VIEW,
 }
 
 _ADMIN_PERMS = _OPERATOR_PERMS | {
-    AUDIT_READ, USER_READ, USER_SET_ROLE, USER_DELETE,
+    AUDIT_READ, USER_READ, USER_SET_ROLE, USER_DELETE, CONSORTIUM_MANAGE,
 }
 
 ROLE_PERMISSIONS: dict[str, set[str]] = {

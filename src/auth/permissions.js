@@ -12,6 +12,16 @@ export const P = {
   USER_READ: 'user:read',
   USER_SET_ROLE: 'user:set_role',
   USER_DELETE: 'user:delete',
+  
+  // New features
+  APPEAL_SUBMIT: 'appeal:submit',
+  APPEAL_REVIEW: 'appeal:review',
+  FRAUD_RULES_MANAGE: 'fraud_rules:manage',
+  FRAUD_RULES_TEST: 'fraud_rules:test',
+  ANALYTICS_VIEW: 'analytics:view',
+  SIMULATION_RUN: 'simulation:run',
+  CONSORTIUM_MANAGE: 'consortium:manage',
+  CHARGEBACK_VIEW: 'chargeback:view',
 };
 
 export const ROLE_LABELS = {

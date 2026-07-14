@@ -25,12 +25,15 @@ the card processor's own infrastructure, and real-money settlement (gated).
 | **Tampering** | Audit log alteration | Append-only writes; mirrored to app log for SIEM; no update/delete API |
 | **Repudiation** | "I didn't do that" | Audit log with actor, action, IP, outcome, timestamp |
 | **Info disclosure** | Card data leak | Tokenization — PAN/CVV never reach the server or logs |
+| **Info disclosure** | Explaining details leak | Fraud explanation excludes personally identifiable information (PII) |
+| **Info disclosure** | Consortium data leakage | Cryptographic Bloom filters ensure raw signals cannot be derived or reconstructed |
 | **Info disclosure** | Username enumeration | Generic 401/409 messages |
 | **Info disclosure** | Verbose errors / docs in prod | Generic 500s; `/docs` disabled in production |
 | **DoS** | Request flooding | Rate limiter + 1 MB body cap + DB indexes |
 | **DoS** | DNS rebinding / Host abuse | TrustedHostMiddleware allow-list |
 | **Elevation** | Self-register as admin | `role` ignored on register; elevation is admin-only + audited |
 | **Elevation** | Privilege via break-glass | Disabled by default, strong token, constant-time compare, fully audited |
+| **Elevation** | Step-up bypass | Cryptographically random, short-lived (5 min) SMS challenge tokens |
 
 ## Residual risks / future work
 - Token revocation is time-based (short TTL) rather than a server-side blocklist;

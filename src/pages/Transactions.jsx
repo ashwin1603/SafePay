@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Eye, Ban, Loader2 } from 'lucide-react';
+import { Search, Eye, Ban, Loader2, Sparkles, FileText, AlertCircle } from 'lucide-react';
 import { transactions as mockTransactions } from '../data/mockData';
-import { txnApi } from '../api/client';
+import { txnApi, appealApi } from '../api/client';
+import { useAuth } from '../context/AuthContext';
+import ExplainPanel from '../components/ExplainPanel';
 
 const FILTERS = ['All', 'Completed', 'Processing', 'Flagged', 'Blocked'];
 
@@ -23,15 +25,24 @@ function StatusBadge({ status }) {
 }
 
 export default function Transactions() {
+  const { user } = useAuth();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('All');
   const [transactions, setTransactions] = useState(mockTransactions);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  // Explanation and Appeal UI state
+  const [selectedExplanation, setSelectedExplanation] = useState(null);
+  const [appealingTxn, setAppealingTxn] = useState(null);
+  const [appealReason, setAppealReason] = useState('');
+  const [submittingAppeal, setSubmittingAppeal] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const loadTxns = () => {
+    setLoading(true);
     txnApi.list({ limit: 100 })
       .then(data => {
-        // Backend returns {id, txn_id, user_id, amount, ...}
         const mapped = data.map(t => ({
           ...t,
           amount: `₹${t.amount.toFixed(2)}`,
@@ -46,6 +57,10 @@ export default function Transactions() {
         setTransactions(mockTransactions);
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadTxns();
   }, []);
 
   const filtered = useMemo(() => {
@@ -53,7 +68,7 @@ export default function Transactions() {
     if (filter !== 'All') list = list.filter(t => t.status === filter.toLowerCase());
     if (query) list = list.filter(t =>
       t.txn_id.toLowerCase().includes(query.toLowerCase()) ||
-      t.user_id.toLowerCase().includes(query.toLowerCase())
+      t.user_id.toString().includes(query)
     );
     // Sort descending: latest transactions first
     return [...list].sort((a, b) => {
@@ -62,6 +77,29 @@ export default function Transactions() {
       return b.txn_id.localeCompare(a.txn_id);
     });
   }, [transactions, query, filter]);
+
+  const handleAppealSubmit = async (e) => {
+    e.preventDefault();
+    if (appealReason.trim().length < 10) {
+      setError('Appeal reason must be at least 10 characters long.');
+      return;
+    }
+    setError('');
+    setSuccess('');
+    setSubmittingAppeal(true);
+    try {
+      await appealApi.submit(appealingTxn.id, appealReason.trim());
+      setSuccess('Appeal successfully submitted!');
+      setAppealingTxn(null);
+      setAppealReason('');
+      loadTxns();
+    } catch (err) {
+      setError(err.message || 'Failed to submit appeal');
+    } finally {
+      setSubmittingAppeal(false);
+    }
+  };
+>>>>>>> 025ce5ca8b5f2052449282ff653f7b157ee2ab48
 
   const totalValue = filtered.reduce((sum, t) => sum + parseFloat(t.amount.replace(/[₹$,]/g, '')), 0);
   const avgRisk = filtered.length ? (filtered.reduce((s, t) => s + t.risk_score, 0) / filtered.length).toFixed(1) : 0;
@@ -75,6 +113,18 @@ export default function Transactions() {
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>Transactions</h1>
         <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>Monitor and manage all payment flows</div>
       </div>
+
+      {error && (
+        <div style={{ padding: 12, borderRadius: 8, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: 13 }}>
+          {error}
+        </div>
+      )}
+
+      {success && (
+        <div style={{ padding: 12, borderRadius: 8, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', color: '#4ade80', fontSize: 13 }}>
+          {success}
+        </div>
+      )}
 
       {/* Controls */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -175,13 +225,31 @@ export default function Transactions() {
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 11 }}>
-                        <Eye size={11} style={{ marginRight: 4 }} />View
-                      </button>
-                      {t.status !== 'blocked' && (
-                        <button className="btn-ghost" style={{ padding: '4px 10px', fontSize: 11, borderColor: 'rgba(239,68,68,0.3)', color: '#f87171' }}>
-                          <Ban size={11} style={{ marginRight: 4 }} />Block
+                      {t.fraud_explanation && (
+                        <button 
+                          onClick={() => setSelectedExplanation(t.fraud_explanation)}
+                          className="btn-ghost" 
+                          style={{ padding: '4px 10px', fontSize: 11, color: '#d4af37', borderColor: 'rgba(212,175,55,0.2)' }}
+                        >
+                          <Sparkles size={11} style={{ marginRight: 4 }} />Explain
                         </button>
+                      )}
+                      {(t.status === 'blocked' || t.status === 'flagged') && !t.appeal_status && (
+                        <button 
+                          onClick={() => setAppealingTxn(t)}
+                          className="btn-ghost" 
+                          style={{ padding: '4px 10px', fontSize: 11 }}
+                        >
+                          <FileText size={11} style={{ marginRight: 4 }} />Appeal
+                        </button>
+                      )}
+                      {t.appeal_status && (
+                        <span style={{
+                          fontSize: 10, alignSelf: 'center', padding: '3px 8px', borderRadius: 4,
+                          background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', color: '#9ca3af'
+                        }}>
+                          Appeal: {t.appeal_status}
+                        </span>
                       )}
                     </div>
                   </td>
@@ -226,6 +294,41 @@ export default function Transactions() {
           ))}
         </div>
       </div>
+
+      {/* Appeal modal */}
+      {appealingTxn && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 110,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div className="card" style={{ padding: 24, width: '400px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Appeal Transaction</h3>
+            <p style={{ fontSize: 11, color: '#6b7280', lineHeight: 1.4 }}>
+              Provide a valid justification for transaction <strong style={{ color: '#fff' }}>{appealingTxn.txn_id}</strong> (${appealingTxn.amount}) to request operator re-verification.
+            </p>
+            <form onSubmit={handleAppealSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <textarea 
+                className="input-field" 
+                style={{ height: 100, resize: 'none' }}
+                placeholder="Reason for appeal (minimum 10 characters)..."
+                value={appealReason}
+                onChange={e => setAppealReason(e.target.value)}
+              />
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
+                <button type="button" onClick={() => setAppealingTxn(null)} style={{ padding: '8px 14px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: '#9ca3af', fontSize: 12, cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" disabled={submittingAppeal} style={{ padding: '8px 14px', borderRadius: 8, background: '#d4af37', border: 'none', color: '#0b0b0b', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                  {submittingAppeal ? 'Submitting...' : 'Submit Appeal'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Glass Box scoring view side drawer */}
+      {selectedExplanation && (
+        <ExplainPanel explanation={selectedExplanation} onClose={() => setSelectedExplanation(null)} />
+      )}
     </div>
   );
 }

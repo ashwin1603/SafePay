@@ -14,9 +14,13 @@ SafePay is a full-stack payment gateway built security-first: JWT authentication
 
 - **Authentication** — bcrypt password hashing, password policy, short-lived JWT access tokens (15 min) + refresh tokens, account lockout after repeated failed logins.
 - **IAM / RBAC** — permission-based authorization with a `user` < `operator` < `admin` role matrix. Every endpoint is guarded by a named permission, and the UI hides what your role can't use. See [`docs/IAM.md`](docs/IAM.md).
-- **AI fraud detection** — an IsolationForest model scores every payment in real time and decides `COMPLETED` / `FLAGGED` / `BLOCKED` before any charge is attempted.
-- **Tokenized payments** — the card is tokenized client-side; the server only ever sees an opaque token (PCI SAQ-A model). Idempotency keys guarantee exactly-once processing.
-- **Operations tooling** — operators can review flagged transactions and issue refunds; admins manage users, roles, and the audit log.
+- **Explainable Fraud Decisions (Glass-Box)** — per-signal impact breakdown (high, medium, low) and plain-language summaries explaining why any transaction was flagged or blocked.
+- **Rules Engine & Backtesting** — operator-authored boolean policy rules executed alongside the AI engine, with a sandbox console to test rules against historical transaction logs.
+- **Risk-Adaptive Step-Up 2FA** — payments yielding borderline-suspicious fraud scores trigger a verification SMS code challenge flow before finalization.
+- **Bloom Filter Consortium Network** — privacy-preserving shared blacklist network to sync cryptographically hashed risk signals across institutions using base64 Bloom filter merges.
+- **Model Observability Telemetry** — real-time monitoring of average scores, verdict distributions, high-firing alert indicators, and Kolmogorov-Smirnov drift analytics.
+- **Attack Simulation Sandbox** — sandbox triggering synthetic threat scenarios (card testing, velocity bursts, account takeover, high-value fraud) to test model thresholds.
+- **Pre-Settlement Dispute Prevention** — scanner using multi-factorial analysis (e.g. z-score, age, time risk) to predict chargeback probability prior to settlement.
 - **Audit log** — append-only record of logins, lockouts, role changes, payments, refunds, and emergency access.
 - **Offline assistant** — a rule-based support chatbot with no external API calls; nothing leaves the server.
 - **Hardening** — security headers (CSP/HSTS), trusted-host check, explicit CORS allow-list, request size cap, and rate limiting.
@@ -58,14 +62,20 @@ cd backend && pytest -q
 ```
 React SPA ──HTTPS──> FastAPI
                        ├─ middleware: TrustedHost · SecurityHeaders · RateLimit · CORS
-                       ├─ /auth          register / login (lockout) / refresh / me
-                       ├─ /process-payment   fraud scoring → tokenized charge
+                       ├─ /auth              register / login (lockout) / refresh / me
+                       ├─ /process-payment   fraud scoring → tokenized charge & step-up verification
                        ├─ /transactions      own rows (operator/admin: all, review, refund)
+                       ├─ /appeals           submit and review transaction verdicts
+                       ├─ /fraud-rules       manage rules and run backtest simulations
+                       ├─ /consortium        sync bloom filters and inspect signals
+                       ├─ /analytics         KS drift and alert distribution statistics
+                       ├─ /simulation        trigger simulated synthetic attack scenarios
+                       ├─ /chargeback        pre-settlement scanner and predictions
                        ├─ /admin             users / stats / audit / retrain / role
                        └─ /chat              offline rule-based assistant
                        ▼
               SQLite (dev) / PostgreSQL (prod)
-              users · transactions · fraud_logs · audit_logs
+              users · transactions · fraud_logs · fraud_rules · audit_logs
 ```
 
 Authorization is permission-based: each route requires a named permission (e.g. `payment:create`, `transaction:refund`, `user:set_role`), resolved from the principal's role via the policy matrix in `backend/app/core/permissions.py`. The frontend gates navigation, routes, and buttons off the permission list returned by `GET /auth/me`.

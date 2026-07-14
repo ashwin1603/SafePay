@@ -1,7 +1,9 @@
 from datetime import datetime
+from typing import Optional
 
-from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, String, func
+from sqlalchemy import DateTime, Float, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import JSON
 
 from app.database import Base
 
@@ -15,7 +17,7 @@ class Transaction(Base):
     description: Mapped[str] = mapped_column(String(500), default="")
     status: Mapped[str] = mapped_column(
         String(20), default="PROCESSING", nullable=False
-    )  # PROCESSING | COMPLETED | FLAGGED | BLOCKED
+    )  # PROCESSING | COMPLETED | FLAGGED | BLOCKED | DECLINED | REFUNDED
     risk_score: Mapped[float] = mapped_column(Float, default=0.0)
     idempotency_key: Mapped[str] = mapped_column(
         String(128), unique=True, index=True, nullable=False
@@ -24,6 +26,18 @@ class Transaction(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+    # ── Explainable fraud (Feature 1) ─────────────────────────────────────────
+    fraud_explanation: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+
+    # ── Appeal flow (Feature 1) ───────────────────────────────────────────────
+    appeal_status: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)  # pending | approved | rejected
+    appeal_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    appeal_reviewed_by: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    appeal_reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    # ── Chargeback prediction (Feature 7) ─────────────────────────────────────
+    chargeback_risk: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
     # ── Composite indexes for common query patterns ───────────────────────────
     # Used by: GET /transactions?status=FLAGGED (user's own filtered list)
