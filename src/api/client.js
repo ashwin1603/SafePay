@@ -64,6 +64,10 @@ export const txnApi = {
     return request(`/transactions${qs ? `?${qs}` : ""}`);
   },
   get: (id) => request(`/transactions/${id}`),
+  review: (id, action) =>
+    request(`/transactions/${id}/review`, { method: "POST", body: JSON.stringify({ action }) }),
+  refund: (id, reason) =>
+    request(`/transactions/${id}/refund`, { method: "POST", body: JSON.stringify({ reason }) }),
 };
 
 export const paymentApi = {
@@ -83,6 +87,13 @@ export const adminApi = {
 export const chatApi = {
   send: (message) =>
     request("/chat", { method: "POST", body: JSON.stringify({ message }) }, { auth: true, retry: false }),
+};
+
+export const cashfreeApi = {
+  createOrder: (payload) =>
+    request("/cashfree/create-order", { method: "POST", body: JSON.stringify(payload) }),
+  verifyOrder: (payload) =>
+    request("/cashfree/verify-order", { method: "POST", body: JSON.stringify(payload) }),
 };
 
 export const healthApi = { check: () => request("/health", {}, { auth: false }) };

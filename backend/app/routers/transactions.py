@@ -44,7 +44,7 @@ def list_transactions(
             raise HTTPException(status_code=422, detail="invalid status filter")
         q = q.filter(Transaction.status == sf)
 
-    rows = q.order_by(Transaction.created_at.desc()).offset(offset).limit(limit).all()
+    rows = q.order_by(Transaction.created_at.desc(), Transaction.id.desc()).offset(offset).limit(limit).all()
     return [TransactionOut.from_orm_obj(t) for t in rows]
 
 

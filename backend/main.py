@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.database import create_tables
 from app.middleware.rate_limiter import RateLimitMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
-from app.routers import admin, auth, chatbot, payments, transactions
+from app.routers import admin, auth, cashfree, chatbot, payments, transactions
 
 logging.basicConfig(
     level=logging.INFO,
@@ -59,6 +59,7 @@ app.include_router(transactions.router)
 app.include_router(payments.router)
 app.include_router(admin.router)
 app.include_router(chatbot.router)
+app.include_router(cashfree.router)
 
 
 @app.get("/health", tags=["Health"])

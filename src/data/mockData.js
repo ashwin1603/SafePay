@@ -4,10 +4,10 @@ export const statsData = [
   {
     id: 1,
     label: 'Total Transactions',
-    value: '$445,280',
+    value: '₹4,45,280',
     change: '+12.5%',
     trend: 'up',
-    icon: 'DollarSign',
+    icon: 'IndianRupee',
     sub: 'vs last month',
   },
   {
@@ -72,7 +72,7 @@ export const fraudAlerts = [
     levelClass: 'text-red-400',
     bgClass: 'bg-red-500/10 border-red-500/20',
     message: 'Anomalous transaction pattern detected — velocity spike 340% above baseline',
-    amount: '$12,450.00',
+    amount: '₹12,450.00',
     time: '2 min ago',
   },
   {
@@ -81,7 +81,7 @@ export const fraudAlerts = [
     levelClass: 'text-red-500',
     bgClass: 'bg-red-600/10 border-red-600/20',
     message: 'IP mismatch — originating country differs from registered location (RU → US)',
-    amount: '$5,200.00',
+    amount: '₹5,200.00',
     time: '8 min ago',
   },
   {
@@ -90,35 +90,35 @@ export const fraudAlerts = [
     levelClass: 'text-yellow-400',
     bgClass: 'bg-yellow-500/10 border-yellow-500/20',
     message: '3 failed authentication attempts before success — possible credential stuffing',
-    amount: '$880.00',
+    amount: '₹880.00',
     time: '14 min ago',
   },
 ];
 
 export const transactions = [
-  { txn_id: 'TXN-10042', user_id: 'USR-4421', amount: '$3,200.00', status: 'completed', risk_score: 12, timestamp: '2026-04-10 19:42:01' },
-  { txn_id: 'TXN-10041', user_id: 'USR-3318', amount: '$780.50', status: 'processing', risk_score: 28, timestamp: '2026-04-10 19:38:14' },
-  { txn_id: 'TXN-10040', user_id: 'USR-8812', amount: '$12,450.00', status: 'flagged', risk_score: 82, timestamp: '2026-04-10 19:36:55' },
-  { txn_id: 'TXN-10039', user_id: 'USR-5520', amount: '$220.00', status: 'completed', risk_score: 5, timestamp: '2026-04-10 19:31:22' },
-  { txn_id: 'TXN-10038', user_id: 'USR-9901', amount: '$5,200.00', status: 'blocked', risk_score: 97, timestamp: '2026-04-10 19:28:44' },
-  { txn_id: 'TXN-10037', user_id: 'USR-1127', amount: '$1,850.75', status: 'completed', risk_score: 18, timestamp: '2026-04-10 19:24:10' },
-  { txn_id: 'TXN-10036', user_id: 'USR-6644', amount: '$670.00', status: 'processing', risk_score: 34, timestamp: '2026-04-10 19:19:33' },
-  { txn_id: 'TXN-10035', user_id: 'USR-2299', amount: '$880.00', status: 'flagged', risk_score: 68, timestamp: '2026-04-10 19:14:05' },
-  { txn_id: 'TXN-10034', user_id: 'USR-7733', amount: '$4,100.00', status: 'completed', risk_score: 9, timestamp: '2026-04-10 19:09:48' },
-  { txn_id: 'TXN-10033', user_id: 'USR-3344', amount: '$290.00', status: 'completed', risk_score: 7, timestamp: '2026-04-10 19:02:17' },
-  { txn_id: 'TXN-10032', user_id: 'USR-5511', amount: '$7,890.00', status: 'blocked', risk_score: 91, timestamp: '2026-04-10 18:55:30' },
-  { txn_id: 'TXN-10031', user_id: 'USR-8820', amount: '$445.50', status: 'processing', risk_score: 41, timestamp: '2026-04-10 18:48:22' },
+  { txn_id: 'TXN-10042', user_id: 'USR-4421', amount: '₹3,200.00', status: 'completed', risk_score: 12, timestamp: '2026-04-10 19:42:01' },
+  { txn_id: 'TXN-10041', user_id: 'USR-3318', amount: '₹780.50', status: 'processing', risk_score: 28, timestamp: '2026-04-10 19:38:14' },
+  { txn_id: 'TXN-10040', user_id: 'USR-8812', amount: '₹12,450.00', status: 'flagged', risk_score: 82, timestamp: '2026-04-10 19:36:55' },
+  { txn_id: 'TXN-10039', user_id: 'USR-5520', amount: '₹220.00', status: 'completed', risk_score: 5, timestamp: '2026-04-10 19:31:22' },
+  { txn_id: 'TXN-10038', user_id: 'USR-9901', amount: '₹5,200.00', status: 'blocked', risk_score: 97, timestamp: '2026-04-10 19:28:44' },
+  { txn_id: 'TXN-10037', user_id: 'USR-1127', amount: '₹1,850.75', status: 'completed', risk_score: 18, timestamp: '2026-04-10 19:24:10' },
+  { txn_id: 'TXN-10036', user_id: 'USR-6644', amount: '₹670.00', status: 'processing', risk_score: 34, timestamp: '2026-04-10 19:19:33' },
+  { txn_id: 'TXN-10035', user_id: 'USR-2299', amount: '₹880.00', status: 'flagged', risk_score: 68, timestamp: '2026-04-10 19:14:05' },
+  { txn_id: 'TXN-10034', user_id: 'USR-7733', amount: '₹4,100.00', status: 'completed', risk_score: 9, timestamp: '2026-04-10 19:09:48' },
+  { txn_id: 'TXN-10033', user_id: 'USR-3344', amount: '₹290.00', status: 'completed', risk_score: 7, timestamp: '2026-04-10 19:02:17' },
+  { txn_id: 'TXN-10032', user_id: 'USR-5511', amount: '₹7,890.00', status: 'blocked', risk_score: 91, timestamp: '2026-04-10 18:55:30' },
+  { txn_id: 'TXN-10031', user_id: 'USR-8820', amount: '₹445.50', status: 'processing', risk_score: 41, timestamp: '2026-04-10 18:48:22' },
 ];
 
 export const users = [
-  { user_id: 'USR-4421', email: 'j.harrison@corp.io', status: 'active', transactions: 142, total_spent: '$284,320', risk_level: 'low' },
-  { user_id: 'USR-3318', email: 'm.chen@trading.co', status: 'active', transactions: 98, total_spent: '$178,500', risk_level: 'low' },
-  { user_id: 'USR-8812', email: 'a.volkov@anon.net', status: 'flagged', transactions: 23, total_spent: '$42,100', risk_level: 'high' },
-  { user_id: 'USR-5520', email: 'r.patel@finco.in', status: 'active', transactions: 317, total_spent: '$521,800', risk_level: 'low' },
-  { user_id: 'USR-9901', email: 'unknown@proxy.ru', status: 'blocked', transactions: 7, total_spent: '$18,200', risk_level: 'critical' },
-  { user_id: 'USR-1127', email: 's.johnson@payments.us', status: 'active', transactions: 204, total_spent: '$396,700', risk_level: 'low' },
-  { user_id: 'USR-6644', email: 'k.williams@bankx.com', status: 'active', transactions: 88, total_spent: '$134,900', risk_level: 'medium' },
-  { user_id: 'USR-2299', email: 'd.kim@tradex.kr', status: 'flagged', transactions: 51, total_spent: '$89,200', risk_level: 'medium' },
+  { user_id: 'USR-4421', email: 'j.harrison@corp.io', status: 'active', transactions: 142, total_spent: '₹2,84,320', risk_level: 'low' },
+  { user_id: 'USR-3318', email: 'm.chen@trading.co', status: 'active', transactions: 98, total_spent: '₹1,78,500', risk_level: 'low' },
+  { user_id: 'USR-8812', email: 'a.volkov@anon.net', status: 'flagged', transactions: 23, total_spent: '₹42,100', risk_level: 'high' },
+  { user_id: 'USR-5520', email: 'r.patel@finco.in', status: 'active', transactions: 317, total_spent: '₹5,21,800', risk_level: 'low' },
+  { user_id: 'USR-9901', email: 'unknown@proxy.ru', status: 'blocked', transactions: 7, total_spent: '₹18,200', risk_level: 'critical' },
+  { user_id: 'USR-1127', email: 's.johnson@payments.us', status: 'active', transactions: 204, total_spent: '₹3,96,700', risk_level: 'low' },
+  { user_id: 'USR-6644', email: 'k.williams@bankx.com', status: 'active', transactions: 88, total_spent: '₹1,34,900', risk_level: 'medium' },
+  { user_id: 'USR-2299', email: 'd.kim@tradex.kr', status: 'flagged', transactions: 51, total_spent: '₹89,200', risk_level: 'medium' },
 ];
 
 export const systemMetrics = {

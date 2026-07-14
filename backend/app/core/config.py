@@ -46,6 +46,14 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+        "http://localhost:5175",
+        "http://127.0.0.1:5175",
+        "http://localhost:5176",
+        "http://127.0.0.1:5176",
+        "http://localhost:5177",
+        "http://127.0.0.1:5177",
     ]
 
     # ── Trusted hosts (Host-header / DNS-rebinding protection) ─────────────────
@@ -65,6 +73,12 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str = ""
     ALLOW_LIVE_PAYMENTS: bool = False
     MAX_TXN_AMOUNT: float = 1_000_000.0
+
+    # ── Cashfree Payments (sandbox) ───────────────────────────────────────────
+    # Obtain test credentials from https://merchant.cashfree.com (switch to Test mode).
+    # Keys always start with TEST_ in sandbox.
+    CASHFREE_APP_ID: str = ""
+    CASHFREE_SECRET_KEY: str = ""
 
     # ── Break-glass (audited emergency access — NOT a hidden backdoor) ─────────
     # Disabled unless an operator deliberately sets a strong token in the env.
