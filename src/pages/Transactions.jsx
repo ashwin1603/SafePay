@@ -45,14 +45,17 @@ export default function Transactions() {
       .then(data => {
         const mapped = data.map(t => ({
           ...t,
-          amount: `$${t.amount.toFixed(2)}`,
+          amount: `₹${t.amount.toFixed(2)}`,
           status: t.status.toLowerCase(),
           risk_score: Math.round(t.risk_score * 100),
           timestamp: new Date(t.created_at).toLocaleString(),
         }));
         setTransactions(mapped);
       })
-      .catch(() => setTransactions(mockTransactions))
+      .catch(err => {
+        console.error("Transactions API Error:", err);
+        setTransactions(mockTransactions);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -67,8 +70,13 @@ export default function Transactions() {
       t.txn_id.toLowerCase().includes(query.toLowerCase()) ||
       t.user_id.toString().includes(query)
     );
-    return list;
-  }, [query, filter, transactions]);
+    // Sort descending: latest transactions first
+    return [...list].sort((a, b) => {
+      if (a.id && b.id) return b.id - a.id;
+      if (a.timestamp && b.timestamp) return new Date(b.timestamp) - new Date(a.timestamp);
+      return b.txn_id.localeCompare(a.txn_id);
+    });
+  }, [transactions, query, filter]);
 
   const handleAppealSubmit = async (e) => {
     e.preventDefault();
@@ -91,8 +99,9 @@ export default function Transactions() {
       setSubmittingAppeal(false);
     }
   };
+>>>>>>> 025ce5ca8b5f2052449282ff653f7b157ee2ab48
 
-  const totalValue = filtered.reduce((sum, t) => sum + parseFloat(t.amount.replace(/[$,]/g, '')), 0);
+  const totalValue = filtered.reduce((sum, t) => sum + parseFloat(t.amount.replace(/[₹$,]/g, '')), 0);
   const avgRisk = filtered.length ? (filtered.reduce((s, t) => s + t.risk_score, 0) / filtered.length).toFixed(1) : 0;
   const successRate = filtered.length
     ? ((filtered.filter(t => t.status === 'completed').length / filtered.length) * 100).toFixed(1)
@@ -265,7 +274,7 @@ export default function Transactions() {
         }}>
           {[
             { label: 'Displayed', value: filtered.length },
-            { label: 'Total Value', value: `$${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}` },
+            { label: 'Total Value', value: `₹${totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` },
             { label: 'Avg Risk Score', value: `${avgRisk}` },
             { label: 'Success Rate', value: `${successRate}%` },
           ].map((stat, i) => (

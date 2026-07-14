@@ -1,14 +1,14 @@
-import { TrendingUp, TrendingDown, DollarSign, CheckCircle, ShieldAlert, Zap } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, CheckCircle, ShieldAlert, Zap } from 'lucide-react';
 
 const iconMap = {
-  DollarSign,
+  IndianRupee,
   CheckCircle,
   ShieldAlert,
   Zap,
 };
 
 export default function StatCard({ label, value, change, trend, icon, sub }) {
-  const Icon = iconMap[icon] || DollarSign;
+  const Icon = iconMap[icon] || IndianRupee;
   const isPositive = trend === 'up';
   const isNeutral = trend === 'down-good'; // down is good (fraud, response time)
 

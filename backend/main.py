@@ -11,7 +11,7 @@ from app.database import create_tables
 from app.middleware.rate_limiter import RateLimitMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.routers import (
-    admin, auth, chatbot, payments, transactions,
+    admin, auth, cashfree, chatbot, payments, transactions,
     appeals, fraud_rules, consortium_router, analytics, simulation, chargeback
 )
 
@@ -65,6 +65,7 @@ app.include_router(transactions.router)
 app.include_router(payments.router)
 app.include_router(admin.router)
 app.include_router(chatbot.router)
+app.include_router(cashfree.router)
 app.include_router(appeals.router)
 app.include_router(fraud_rules.router)
 app.include_router(consortium_router.router)

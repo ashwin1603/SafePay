@@ -26,3 +26,5 @@ numpy>=2.2
 # ── Payments (optional; only needed when PAYMENT_PROVIDER=stripe) ──────────────
 # stripe==11.4.0
 
+# ── HTTP client (Cashfree sandbox API calls) ───────────────────────────────────
+httpx==0.28.1
